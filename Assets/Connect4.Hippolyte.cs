@@ -200,8 +200,8 @@ public partial class Connect4 : MonoBehaviour
         {
             for (int j = 0; j < colonne; j++)
             {
-                score += HJ_ScoreCase(joueur, new Coords(i, j));
-                score -= HJ_ScoreCase(CellType.Player1, new Coords(i, j));
+                score += HJ_ScoreCase(Board, joueur, new Coords(i, j));
+                score -= HJ_ScoreCase(Board, CellType.Player1, new Coords(i, j));
                 if (Board[i, j] == joueur)
                 {
                     score += pointCase[i,j];
@@ -215,7 +215,7 @@ public partial class Connect4 : MonoBehaviour
         return score;
     }
     
-    private int HJ_ScoreCase(CellType joueur, Coords coupJoue)
+    private int HJ_ScoreCase(CellType[,] Board, CellType joueur, Coords coupJoue)
     {
         int score = 0;
         int[] x = {1,0,1,1};
@@ -228,15 +228,15 @@ public partial class Connect4 : MonoBehaviour
 
         for (int i = 0; i < x.Length; i++)
         {
-            if (HJ_SousTest(joueur, coupJoue, x[i], y[i],4))
+            if (HJ_SousTest(Board, joueur, coupJoue, x[i], y[i],4))
             {
                 score += puissance4;
             }
-            else if (HJ_SousTest(joueur, coupJoue, x[i], y[i], 3))
+            else if (HJ_SousTest(Board, joueur, coupJoue, x[i], y[i], 3))
             {
                 score += tripleCoefficient;
             }
-            else if (HJ_SousTest(joueur, coupJoue, x[i], y[i],2))
+            else if (HJ_SousTest(Board, joueur, coupJoue, x[i], y[i],2))
             {
                 score += doubleCoefficient;
             }
@@ -244,7 +244,7 @@ public partial class Connect4 : MonoBehaviour
         return score;
     }
     
-    private bool HJ_SousTest(CellType joueur, Coords coupJoue, int x, int y, int align)
+    private bool HJ_SousTest(CellType[,] Board ,CellType joueur, Coords coupJoue, int x, int y, int align)
     {
         int aligne = 0;
         for (int i = 0; i < align; i++)

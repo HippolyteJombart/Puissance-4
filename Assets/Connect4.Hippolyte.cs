@@ -19,7 +19,7 @@ public partial class Connect4 : MonoBehaviour
     
     
     
-    private void FakePlay(CellType[,] cloneBoard, int i)
+    private void FakePlay(CellType[,] cloneBoard, int i,CellType player)
     {
         if (!TestToken(cloneBoard, i))
         {
@@ -27,19 +27,9 @@ public partial class Connect4 : MonoBehaviour
         }
 
         Coords coo;
-        CellType playing;
         
-        if (currentPlayer == Player.Player1)
-        {
-            playing = CellType.Player1;
-        }
-        else
-        {
-            playing = CellType.Player2;
-        }
-        
-        coo = DropToken(cloneBoard, playing, i);
-        cloneBoard[coo.X, coo.Y] = playing;
+        coo = DropToken(cloneBoard, player, i);
+        cloneBoard[coo.X, coo.Y] = player;
     }
     
     private (int,float) AI(Player player, int n)
@@ -72,7 +62,7 @@ public partial class Connect4 : MonoBehaviour
                 continue;
             }
             float newScore;
-            FakePlay(Board, i);
+            FakePlay(Board, i, cellPlayer);
             newScore = Evaluation_Hippolyte_Jombart(Board, cellPlayer) - AI(opponent, n-1).Item2;
             
             if (bestScore < newScore)
@@ -87,6 +77,63 @@ public partial class Connect4 : MonoBehaviour
         return (bestColonne, bestScore);
     }
 
+    private (int, float) TestCoup(CellType[,] tempBoard)
+    {
+        float bestScore = -500000;
+        int bestColonne = 0;
+        CellType[,] cloneBoard = (CellType[,])tempBoard.Clone();
+        
+        for (int i = 0; i < colonne; i++)
+        {
+            if (!TestToken(cloneBoard, i))
+            {
+                continue;
+            }
+            
+            float newScore;
+            FakePlay(cloneBoard, i,CellType.Player2);
+            newScore = TestCoup420(cloneBoard);
+
+            Debug.Log((i, newScore, bestScore));
+            DisplayBoard(cloneBoard);
+            if (bestScore < newScore)
+            {
+                bestScore = newScore;
+                bestColonne = i;
+            }
+            cloneBoard = (CellType[,])tempBoard.Clone();
+        }
+        return (bestColonne, bestScore);
+    }
+    
+    private float TestCoup420(CellType[,] tempBoard)
+    {
+        float worstScore = 500000;
+        CellType[,] cloneBoard = (CellType[,])tempBoard.Clone();
+        
+        for (int i = 0; i < colonne; i++)
+        {
+            if (!TestToken(cloneBoard, i))
+            {
+                continue;
+            }
+            
+            float newScore;
+            FakePlay(cloneBoard, i,CellType.Player1);
+            newScore = Evaluation_Hippolyte_Jombart(cloneBoard,CellType.Player2);
+            
+            Debug.Log((i, newScore, worstScore));
+            DisplayBoard(cloneBoard);
+            if (newScore < worstScore)
+            {
+                worstScore = newScore;
+            }
+            cloneBoard = (CellType[,])tempBoard.Clone();
+        }
+        return worstScore;
+    }
+    
+    /*
     private (int,float) TestCoupPlayer2(CellType[,] tempBoard, int n)
     {
         if (n == 0)
@@ -104,7 +151,7 @@ public partial class Connect4 : MonoBehaviour
             }
             
             float newScore;
-            FakePlay(cloneBoard, i);
+            FakePlay(cloneBoard, i,CellType.Player2);
             newScore = TestCoupPlayer1(cloneBoard, n - 1).Item2;
 
             Debug.Log((i, newScore, worstScore));
@@ -132,7 +179,7 @@ public partial class Connect4 : MonoBehaviour
                 continue;
             }
             float newScore;
-            FakePlay(cloneBoard, i);
+            FakePlay(cloneBoard, i,CellType.Player1);
             newScore = TestCoupPlayer2(cloneBoard, n).Item2;
             
             if (bestScore > newScore)
@@ -144,35 +191,24 @@ public partial class Connect4 : MonoBehaviour
             cloneBoard = (CellType[,])tempBoard.Clone();
         }
         return (bestColonne, bestScore);
-    }
+    }*/
     
     private float Evaluation_Hippolyte_Jombart(CellType[,] Board,CellType joueur)
     {
         int score = 0;
-        CellType opponent;
-        
-        if (joueur == CellType.Player1)
-        {
-            opponent = CellType.Player2;
-        }
-        else
-        {
-            opponent = CellType.Player1;
-        }
-        
         for (int i = 0; i < ligne; i++)
         {
             for (int j = 0; j < colonne; j++)
             {
                 score += HJ_ScoreCase(joueur, new Coords(i, j));
-                score -= HJ_ScoreCase(opponent, new Coords(i, j));
+                score -= HJ_ScoreCase(CellType.Player1, new Coords(i, j));
                 if (Board[i, j] == joueur)
                 {
                     score += pointCase[i,j];
                 }
-                else if (Board[i, j] == opponent)
+                else if (Board[i, j] == CellType.Player1)
                 {
-                    score -= pointCase[i, j];
+                    score -= pointCase[i,j];
                 }
             }
         }
@@ -203,7 +239,6 @@ public partial class Connect4 : MonoBehaviour
             else if (HJ_SousTest(joueur, coupJoue, x[i], y[i],2))
             {
                 score += doubleCoefficient;
-                Debug.Log("cacaaaaaaaaaaaaaaaaaaa");
             }
         }
         return score;

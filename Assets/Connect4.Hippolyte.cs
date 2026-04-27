@@ -9,6 +9,15 @@ public partial class Connect4 : MonoBehaviour
         {2,3,4,5,4,3,2},
         {1,2,3,4,3,2,1},
         {0,1,2,3,2,1,0}};
+
+    /*
+    private (int,float) TestCoupPlayer2(CellType[,] tempBoard, int n)
+    {
+
+        return (0, 0);
+    }*/
+    
+    
     
     private void FakePlay(CellType[,] cloneBoard, int i)
     {
@@ -64,7 +73,7 @@ public partial class Connect4 : MonoBehaviour
             }
             float newScore;
             FakePlay(Board, i);
-            newScore = Evaluation_Hippolyte_Jombart(Board, cellPlayer) - 0.8f * AI(opponent, n-1).Item2;
+            newScore = Evaluation_Hippolyte_Jombart(Board, cellPlayer) - AI(opponent, n-1).Item2;
             
             if (bestScore < newScore)
             {
@@ -140,15 +149,30 @@ public partial class Connect4 : MonoBehaviour
     private float Evaluation_Hippolyte_Jombart(CellType[,] Board,CellType joueur)
     {
         int score = 0;
-
+        CellType opponent;
+        
+        if (joueur == CellType.Player1)
+        {
+            opponent = CellType.Player2;
+        }
+        else
+        {
+            opponent = CellType.Player1;
+        }
+        
         for (int i = 0; i < ligne; i++)
         {
             for (int j = 0; j < colonne; j++)
             {
                 score += HJ_ScoreCase(joueur, new Coords(i, j));
+                score -= HJ_ScoreCase(opponent, new Coords(i, j));
                 if (Board[i, j] == joueur)
                 {
                     score += pointCase[i,j];
+                }
+                else if (Board[i, j] == opponent)
+                {
+                    score -= pointCase[i, j];
                 }
             }
         }
@@ -179,6 +203,7 @@ public partial class Connect4 : MonoBehaviour
             else if (HJ_SousTest(joueur, coupJoue, x[i], y[i],2))
             {
                 score += doubleCoefficient;
+                Debug.Log("cacaaaaaaaaaaaaaaaaaaa");
             }
         }
         return score;

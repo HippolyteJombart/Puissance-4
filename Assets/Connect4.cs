@@ -252,7 +252,6 @@ public partial class Connect4 : MonoBehaviour
         
         SwitchTurn();
     }
-
     
     private void SwitchTurn()
     {

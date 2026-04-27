@@ -10,14 +10,7 @@ public partial class Connect4 : MonoBehaviour
         {1,2,3,4,3,2,1},
         {0,1,2,3,2,1,0}};
 
-    /*
-    private (int,float) TestCoupPlayer2(CellType[,] tempBoard, int n)
-    {
-
-        return (0, 0);
-    }*/
-    
-    
+    private int maxIteration = 2;
     
     private void FakePlay(CellType[,] cloneBoard, int i,CellType player)
     {
@@ -32,52 +25,7 @@ public partial class Connect4 : MonoBehaviour
         cloneBoard[coo.X, coo.Y] = player;
     }
     
-    private (int,float) AI(Player player, int n)
-    {
-        CellType cellPlayer;
-        Player opponent;
-        if (player == Player.Player1)
-        {
-            cellPlayer = CellType.Player1;
-            opponent = Player.Player2;
-        }
-        else
-        {
-            cellPlayer = CellType.Player2;
-            opponent = Player.Player1;
-        }
-        
-        if (n == 0)
-        {
-            return (0,Evaluation_Hippolyte_Jombart(Board, cellPlayer));
-        }
-
-        float bestScore = 50000;
-        int bestColonne = 0;
-        CellType[,] cloneBoard = (CellType[,])Board.Clone();
-        for (int i = 0; i < colonne; i++)
-        {
-            if (!TestToken(Board, i))
-            {
-                continue;
-            }
-            float newScore;
-            FakePlay(Board, i, cellPlayer);
-            newScore = Evaluation_Hippolyte_Jombart(Board, cellPlayer) - AI(opponent, n-1).Item2;
-            
-            if (bestScore < newScore)
-            {
-                bestScore = newScore;
-                bestColonne = i;
-            }
-            Board = (CellType[,])cloneBoard.Clone();
-        }
-        
-        print(bestColonne);
-        return (bestColonne, bestScore);
-    }
-
-    private (int, float) TestCoup(CellType[,] tempBoard)
+    private (int, float) IA(CellType[,] tempBoard, int n = 0)
     {
         float bestScore = -500000;
         int bestColonne = 0;
@@ -92,7 +40,14 @@ public partial class Connect4 : MonoBehaviour
             
             float newScore;
             FakePlay(cloneBoard, i,CellType.Player2);
-            newScore = TestCoup420(cloneBoard);
+            if (n == maxIteration)
+            {
+                newScore = Evaluation_Hippolyte_Jombart(cloneBoard,CellType.Player2);
+            }
+            else
+            {
+                newScore = PredictionAdversaire(cloneBoard, n);
+            }
 
             Debug.Log((i, newScore, bestScore));
             DisplayBoard(cloneBoard);
@@ -106,9 +61,10 @@ public partial class Connect4 : MonoBehaviour
         return (bestColonne, bestScore);
     }
     
-    private float TestCoup420(CellType[,] tempBoard)
+    private float PredictionAdversaire(CellType[,] tempBoard,  int n)
     {
         float worstScore = 500000;
+        int worstColonne = 0;
         CellType[,] cloneBoard = (CellType[,])tempBoard.Clone();
         
         for (int i = 0; i < colonne; i++)
@@ -120,78 +76,27 @@ public partial class Connect4 : MonoBehaviour
             
             float newScore;
             FakePlay(cloneBoard, i,CellType.Player1);
-            newScore = Evaluation_Hippolyte_Jombart(cloneBoard,CellType.Player2);
+            if (n == maxIteration)
+            {
+                newScore = Evaluation_Hippolyte_Jombart(cloneBoard,CellType.Player2);
+            }
+            else
+            {
+                newScore = IA(cloneBoard, n + 1).Item2;
+            }
             
             Debug.Log((i, newScore, worstScore));
             DisplayBoard(cloneBoard);
             if (newScore < worstScore)
             {
                 worstScore = newScore;
+                worstColonne = i;
             }
             cloneBoard = (CellType[,])tempBoard.Clone();
         }
         return worstScore;
     }
     
-    /*
-    private (int,float) TestCoupPlayer2(CellType[,] tempBoard, int n)
-    {
-        if (n == 0)
-        {
-            return (0,Evaluation_Hippolyte_Jombart(tempBoard, CellType.Player2));
-        }
-        float worstScore = -500000;
-        int bestColonne = 0;
-        CellType[,] cloneBoard = (CellType[,])tempBoard.Clone();
-        for (int i = 0; i < colonne; i++)
-        {
-            if (!TestToken(cloneBoard, i))
-            {
-                continue;
-            }
-            
-            float newScore;
-            FakePlay(cloneBoard, i,CellType.Player2);
-            newScore = TestCoupPlayer1(cloneBoard, n - 1).Item2;
-
-            Debug.Log((i, newScore, worstScore));
-            DisplayBoard(cloneBoard);
-            if (worstScore < newScore)
-            {
-                worstScore = newScore;
-                bestColonne = i;
-            }
-            cloneBoard = (CellType[,])tempBoard.Clone();
-        }
-        return (bestColonne, worstScore);
-    }
-    
-    
-    private (int,float) TestCoupPlayer1(CellType[,] tempBoard, int n)
-    {
-        float bestScore = 500000;
-        int bestColonne = 0;
-        CellType[,] cloneBoard = (CellType[,])tempBoard.Clone();
-        for (int i = 0; i < colonne; i++)
-        {
-            if (!TestToken(cloneBoard, i))
-            {
-                continue;
-            }
-            float newScore;
-            FakePlay(cloneBoard, i,CellType.Player1);
-            newScore = TestCoupPlayer2(cloneBoard, n).Item2;
-            
-            if (bestScore > newScore)
-            {
-                bestScore = newScore;
-                bestColonne = i;
-            }
-            
-            cloneBoard = (CellType[,])tempBoard.Clone();
-        }
-        return (bestColonne, bestScore);
-    }*/
     
     private float Evaluation_Hippolyte_Jombart(CellType[,] Board,CellType joueur)
     {
@@ -268,6 +173,7 @@ public partial class Connect4 : MonoBehaviour
         return false;
     }
     
+    /*
     private bool HJ_SousTestPlus(CellType joueur, Coords coupJoue, int x, int y, int align)
     {
         int aligne = 0;
@@ -295,5 +201,113 @@ public partial class Connect4 : MonoBehaviour
             }
         }
         return false;
+    }*/
+    
+    
+    // VIEUX TEST QUI MARCHE PAS
+    
+    /*
+    private (int,float) AI(Player player, int n)
+    {
+        CellType cellPlayer;
+        Player opponent;
+        if (player == Player.Player1)
+        {
+            cellPlayer = CellType.Player1;
+            opponent = Player.Player2;
+        }
+        else
+        {
+            cellPlayer = CellType.Player2;
+            opponent = Player.Player1;
+        }
+
+        if (n == 0)
+        {
+            return (0,Evaluation_Hippolyte_Jombart(Board, cellPlayer));
+        }
+
+        float bestScore = 50000;
+        int bestColonne = 0;
+        CellType[,] cloneBoard = (CellType[,])Board.Clone();
+        for (int i = 0; i < colonne; i++)
+        {
+            if (!TestToken(Board, i))
+            {
+                continue;
+            }
+            float newScore;
+            FakePlay(Board, i, cellPlayer);
+            newScore = Evaluation_Hippolyte_Jombart(Board, cellPlayer) - AI(opponent, n-1).Item2;
+
+            if (bestScore < newScore)
+            {
+                bestScore = newScore;
+                bestColonne = i;
+            }
+            Board = (CellType[,])cloneBoard.Clone();
+        }
+
+        print(bestColonne);
+        return (bestColonne, bestScore);
     }
+    
+    private (int,float) TestCoupPlayer2(CellType[,] tempBoard, int n)
+    {
+        if (n == 0)
+        {
+            return (0,Evaluation_Hippolyte_Jombart(tempBoard, CellType.Player2));
+        }
+        float worstScore = -500000;
+        int bestColonne = 0;
+        CellType[,] cloneBoard = (CellType[,])tempBoard.Clone();
+        for (int i = 0; i < colonne; i++)
+        {
+            if (!TestToken(cloneBoard, i))
+            {
+                continue;
+            }
+            
+            float newScore;
+            FakePlay(cloneBoard, i,CellType.Player2);
+            newScore = TestCoupPlayer1(cloneBoard, n - 1).Item2;
+
+            Debug.Log((i, newScore, worstScore));
+            DisplayBoard(cloneBoard);
+            if (worstScore < newScore)
+            {
+                worstScore = newScore;
+                bestColonne = i;
+            }
+            cloneBoard = (CellType[,])tempBoard.Clone();
+        }
+        return (bestColonne, worstScore);
+    }
+    
+    
+    private (int,float) TestCoupPlayer1(CellType[,] tempBoard, int n)
+    {
+        float bestScore = 500000;
+        int bestColonne = 0;
+        CellType[,] cloneBoard = (CellType[,])tempBoard.Clone();
+        for (int i = 0; i < colonne; i++)
+        {
+            if (!TestToken(cloneBoard, i))
+            {
+                continue;
+            }
+            float newScore;
+            FakePlay(cloneBoard, i,CellType.Player1);
+            newScore = TestCoupPlayer2(cloneBoard, n).Item2;
+            
+            if (bestScore > newScore)
+            {
+                bestScore = newScore;
+                bestColonne = i;
+            }
+            
+            cloneBoard = (CellType[,])tempBoard.Clone();
+        }
+        return (bestColonne, bestScore);
+    }*/
 }

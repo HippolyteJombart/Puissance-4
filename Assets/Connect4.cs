@@ -261,7 +261,7 @@ public partial class Connect4 : MonoBehaviour
             currentPlayer = Player.Player2;
             playerText.text = "Player2";
             playerText.color = Color.red;
-            Play(TestCoup(Board).Item1);
+            Play(IA(Board).Item1);
         }
         else
         {

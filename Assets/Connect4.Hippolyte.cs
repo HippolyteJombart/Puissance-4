@@ -10,7 +10,7 @@ public partial class Connect4 : MonoBehaviour
         {1,2,3,4,3,2,1},
         {0,1,2,3,2,1,0}};
 
-    private int maxIteration = 2;
+    private int maxIteration = 4;
     
     private void FakePlay(CellType[,] cloneBoard, int i,CellType player)
     {
@@ -42,11 +42,16 @@ public partial class Connect4 : MonoBehaviour
             FakePlay(cloneBoard, i,CellType.Player2);
             if (n == maxIteration)
             {
+                Debug.Log(5);
                 newScore = Evaluation_Hippolyte_Jombart(cloneBoard,CellType.Player2);
             }
             else
             {
-                newScore = PredictionAdversaire(cloneBoard, n);
+                if (Mathf.Abs(Evaluation_Hippolyte_Jombart(cloneBoard, CellType.Player2)) > 4500)
+                {
+                    return (i, 5000);
+                }
+                newScore = PredictionAdversaire(cloneBoard, n + 1);
             }
 
             Debug.Log((i, newScore, bestScore));
@@ -78,10 +83,15 @@ public partial class Connect4 : MonoBehaviour
             FakePlay(cloneBoard, i,CellType.Player1);
             if (n == maxIteration)
             {
+                Debug.Log(5);
                 newScore = Evaluation_Hippolyte_Jombart(cloneBoard,CellType.Player2);
             }
             else
             {
+                if (Mathf.Abs(Evaluation_Hippolyte_Jombart(cloneBoard, CellType.Player2)) > 4500)
+                {
+                    return -5000;
+                }
                 newScore = IA(cloneBoard, n + 1).Item2;
             }
             
@@ -128,7 +138,6 @@ public partial class Connect4 : MonoBehaviour
         
         const int doubleCoefficient = 10;
         const int tripleCoefficient = 100;
-        const int tripleCoefficientVide = 100;
         const int puissance4 = 5000;
 
         for (int i = 0; i < x.Length; i++)
@@ -172,8 +181,61 @@ public partial class Connect4 : MonoBehaviour
         }
         return false;
     }
-    
-    /*
+
+    private int HJ_ScoreCase2(CellType[,] Board, CellType joueur, Coords coupJoue)
+    {
+        int aligne = 0;
+        int doubleCase = 0;
+        int tripleCase = 0;
+        for (int i = 0; i < colonne; i++)
+        {
+            if (0 <= coupJoue.X + i && coupJoue.X + i < ligne)
+            {
+                if (Board[coupJoue.X + i, coupJoue.Y] == joueur)
+                {
+                    aligne += 1;
+                }
+                else
+                {
+                    switch (aligne)
+                    {
+                        case 2:
+                            doubleCase += 1;
+                            break;
+                        case 3:
+                            tripleCase += 1;
+                            break;
+                        case 4:
+                            return 5000;
+                    }
+                    aligne = 0;
+                }
+            }
+        }
+        return doubleCase * 10 + tripleCase * 100;
+    }
+
+    /*private int HJ_SousTest2(CellType[,] Board ,CellType joueur, Coords coupJoue, int x, int y)
+    {
+        int aligne = 0;
+        int maxAligne = 0;
+        for (int i = 0; i < 4; i++)
+        {
+            if (0 <= coupJoue.X + i * x && coupJoue.X + i * x < ligne && 0 <= coupJoue.Y + i * y && coupJoue.Y + i * y < colonne)
+            {
+                if (Board[coupJoue.X + i * x, coupJoue.Y + i * y] == joueur)
+                {
+                    aligne += 1;
+                }
+                else
+                {
+                    maxAligne = aligne;
+                    aligne = 0;
+                }
+            }
+        }
+        return maxAligne;
+    }
     private bool HJ_SousTestPlus(CellType joueur, Coords coupJoue, int x, int y, int align)
     {
         int aligne = 0;

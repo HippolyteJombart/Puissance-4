@@ -1,13 +1,15 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Debug = UnityEngine.Debug;
 
 public partial class Connect4 : MonoBehaviour
 {
-    private List<List<Image>> casesTableau = new List<List<Image>>();
+    private List<List<Image>> casesTableau = new ();
     [SerializeField] GameObject casesParent;
-    
     [SerializeField] private TMP_Text playerText;
     [SerializeField] private Button undoButton;
     [SerializeField] private Button redoButton;
@@ -15,6 +17,7 @@ public partial class Connect4 : MonoBehaviour
     [SerializeField] private GameObject player1WinScreen;
     [SerializeField] private GameObject player2WinScreen;
 
+	private Stopwatch stopWatch = new ();
     private Stack<Coords> pastAction = new ();
     private Stack<Coords> futurAction = new ();
     
@@ -261,7 +264,7 @@ public partial class Connect4 : MonoBehaviour
             currentPlayer = Player.Player2;
             playerText.text = "Player2";
             playerText.color = Color.red;
-            Play(IA(Board).Item1);
+            StartCoroutine(LaunchIA());
         }
         else
         {
@@ -272,6 +275,15 @@ public partial class Connect4 : MonoBehaviour
         }
     }
 
+    private IEnumerator LaunchIA()
+    {
+        yield return new WaitForSeconds(0.1f);
+		stopWatch.Start();
+        Play(IA(Board).Item1);
+		stopWatch.Stop();
+        Debug.Log("Il y a eu " + compteurEvaluation.ToString() + " en " + stopWatch.Elapsed + " secondes");
+	
+    }
 
     public void UndoAI()
     {

@@ -1,0 +1,1 @@
+J'ai eu le temps de faire le chronométrage et compter le nombre d'évaluation. Pour l'alpha beta, j'ai essayé de me renseigner avec un LLM etc mais j'ai pas tous compris donc j'ai pas vraiment eu le temps d'essayer.
